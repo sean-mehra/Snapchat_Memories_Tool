@@ -1,0 +1,51 @@
+Copyright (c) 2025 Sean Mehra
+
+Permission is granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to use, copy, and modify the
+Software for personal and educational purposes only, subject to the conditions below.
+
+Terms and Conditions
+
+1. Attribution Requirement
+   Any use, modification, or redistribution of this Software must clearly and visibly
+   credit the original author:
+
+       Sean Mehra
+
+   and must include a link to the original GitHub repository where this Software
+   is hosted.
+
+2. Non-Commercial Restriction
+   The Software and any derivative works may NOT be used for commercial purposes
+   without explicit written permission from the author.
+
+   For the purposes of this license, "commercial use" includes, but is not limited to:
+   - Selling this software or access to it
+   - Using this software in any paid product or service
+   - Offering paid features, subscriptions, or monetization built on top of this software
+   - Packaging this software with commercial offerings
+
+   Any commercial usage without permission constitutes a violation of this license.
+
+3. No Endorsement Implied
+   Use of this Software does not imply endorsement by the author.
+
+4. Data Ownership Disclaimer
+   The author does not claim ownership over any Snapchat data processed by this software.
+   All Snapchat data remains the property of its respective owners and is subject to
+   Snapchat’s Terms of Service.
+
+5. Scope of Permission
+   This license applies only to this software and does not grant any rights to
+   third-party platforms, services, or data, including but not limited to Snapchat,
+   its trademarks, or its APIs.
+
+Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
