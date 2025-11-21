@@ -147,10 +147,9 @@ def update_metadata(file_path, date_time, gps_coords=None, only_modified=False):
         pass
 
 
-def generate_filename(date_time_str, has_caption=False):
+def generate_filename(date_time_str):
     dt_obj = datetime.strptime(date_time_str, "%Y:%m:%d %H:%M:%S")
-    base = dt_obj.strftime("%Y-%m-%d_%H-%M-%S")
-    return f"{base}_with_caption" if has_caption else base
+    return dt_obj.strftime("%Y-%m-%d_%H-%M-%S")
 
 
 def apply_overlay_image(base_path, overlay_path, output_path):
