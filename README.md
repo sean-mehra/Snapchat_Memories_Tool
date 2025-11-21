@@ -378,8 +378,8 @@ After processing completes, use the files from the `output/memories_system_time/
 #### Mac Photo:
 
 <p>
-  <img src="examples/Mac_Photo.png" height="600">
-  <img src="examples/Mac_Photo_Info.jpeg" height="600">
+  <img src="examples/Mac_Photo.png" height="400">
+  <img src="examples/Mac_Photo_Info.jpeg" height="400">
 </p>
 
 > **💡 Important Notes:**  
