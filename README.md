@@ -88,20 +88,33 @@ List of all tool’s features along with a high-level explanation of how each fu
 To use this tool, you’ll need to export your Snapchat data from the official **My Data** page.
 
 1. Go to [Snapchat’s My Data page](https://accounts.snapchat.com/accounts/downloadmydata).
+
 2. Log in.
+
 3. In the export options, make sure the following boxes are checked:
    - ✅ **Memories**
    - ✅ **JSON Files**
    - ✅ **Chat Media**
 
-![Export Data Image](examples/Export_Data.png)
+![Export Data 1](examples/Export_Data_1.png)
 
-4. Wait for Snapchat to email you a download link (this may take a long time), then click the link and extract the ZIP file.
-5. Inside the ZIP, locate:
+4. Select **All Time** from date range and enter the email you want to send the data too.
+
+![Export Data 2](examples/Export_Data_2.jpeg)
+
+5. Wait for Snapchat to email you a download link (this may take a long time), then click the link and extract the ZIP file.
+
+![Export Data 3](examples/Export_Data_3.jpeg)
+![Email](examples/Email.jpeg)
+![Export Data 4](examples/Export_Data_4.png)
+
+6. Inside the ZIP, locate:
+
    - `memories/` — folder containing photos and videos
    - `chat_media/` — folder containing saved media from chats
    - `memories_history.json` — metadata file with timestamps, GPS, etc.
-6. Move those three items into the `input/` folder before running the script.
+
+7. Move those three items into the `input/` folder before running the script.
 
 ---
 
