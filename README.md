@@ -21,7 +21,7 @@ This tool rebuilds a user's Snapchat Memories and Chat Media, restoring pictures
 - Photos and Videos compatible with Apple Photos
 - Renames files by date and time
 
-<p align="center" style="font-size:32px;">
+<p align="center" style="font-size:2em;">
 Memories
 </p>
 
@@ -33,7 +33,7 @@ Memories
 
 ![Apple Photos](examples/Apple_Photos.png)
 
-<p align="center" style="font-size:32px;">
+<p align="center" style="font-size:2em;">
 Chat Media
 </p>
 
