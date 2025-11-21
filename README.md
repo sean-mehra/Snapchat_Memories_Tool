@@ -401,6 +401,7 @@ After processing completes, use the files from the `output/memories_system_time/
 - `README` — directions on how to run script
 - `examples/` — demonstration images for the `README.md` file
 - `Code_Logic` — documentation for users interested in detailed function breakdowns
+- `LICENSE` — legal terms for using and sharing this project
 
 ---
 
