@@ -407,7 +407,8 @@ After processing completes, use the files from the `output/memories_system_time/
 
 ## 🪪 License
 
-This project is currently unlicensed. All rights reserved by the author.
+This project is licensed under a custom non-commercial license.  
+See the `LICENSE` file for full details.
 
 ---
 
