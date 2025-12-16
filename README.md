@@ -12,6 +12,14 @@ This tool rebuilds a user's Snapchat Memories and Chat Media, restoring pictures
 
 ---
 
+### Install Dependencies
+
+install all required Python packages at once using the provided `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## ✨ Key Features
 
 - Restores date, time, and GPS metadata to Memories
