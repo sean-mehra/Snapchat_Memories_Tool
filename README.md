@@ -15,10 +15,11 @@ This tool rebuilds a user's Snapchat Memories and Chat Media, restoring pictures
 <h2 id="key-features">✨ Key Features</h2>
 
 - Restores date, time, and GPS metadata to Memories
+- Automatically embeds EXIF/XMP `Snapchat` tags for Immich, Google Photos, and Lightroom
 - Adds overlays / captions to Memories
 - Merges multi-clip video Memories
-- Processes Chat Media and voice messages with date metadata
-- Photos and Videos compatible with Apple Photos
+- Processes Chat Media and voice messages with exact timestamps and sender details
+- Photos and Videos compatible with Apple Photos, Immich, and Windows File Explorer
 - Renames files by date and time
 
 ---
@@ -105,12 +106,18 @@ List of all tool’s features along with a high-level explanation of how each fu
 
 ### 💬 Chat Media Handling
 
-- Extracts the date from each filename and embeds it into file metadata.
-- Sets all Chat Media timestamps to **12:00 PM** since no time data is provided by Snapchat.
+- Matches Chat Media filenames to `chat_history.json` (if provided) to extract exact original UTC timestamps, sender usernames (`From`), and conversation titles (`Conversation Title`).
+- Automatically converts UTC timestamps into your local system timezone.
+- Falls back to file creation timestamps or `00:00:00` if `chat_history.json` is not provided.
 - Skips video thumbnail images to avoid redundancy.
 - Separates saved Chat Media into organized folders:
   - `chat media/` — for images and videos.
   - `chat media voice messages/` — for saved voice notes.
+
+### 🏷️ Automatic EXIF Tagging (Immich / Google Photos / Lightroom)
+
+- Automatically embeds standard EXIF and XMP keyword tags (`-Keywords=Snapchat`, `-XPKeywords=Snapchat`, `-XMP-dc:Subject=Snapchat`) into all output files.
+- Allows photo management platforms like **Immich**, Google Photos, and Adobe Lightroom to automatically assign the **`Snapchat`** tag to your imported media upon upload.
 
 ### 🏷️ File Renaming
 
@@ -320,12 +327,13 @@ Now move the Contents of the chat_media folder into `Snapchat_Memories_Tool/inpu
 - All memory media → `input/memories/`
 - All chat media → `input/chat_media/`
 
-### Step 5 - Locate the JSON metadata file
+### Step 5 - Locate the JSON metadata files
 
-In your exported Snapchat data, locate:
-`memories_history.json` in the `json/` folder
+In your exported Snapchat data, locate the following files in the `json/` folder:
+- `memories_history.json` (required for Memories)
+- `chat_history.json` (recommended for exact Chat Media timestamps, senders, and chat titles)
 
-Copy this file into your `input/` folder.
+Copy these files into your `input/` folder.
 
 ### Final input folder structure
 
@@ -337,6 +345,7 @@ Snapchat_Memories_Tool/
     memories/
     chat_media/
     memories_history.json
+    chat_history.json
 ```
 
 ---
@@ -388,7 +397,8 @@ Python 3.x.x
   1. Locate the downloaded file — it will usually be named **`exiftool(-k).exe`** on Windows or **`exiftool`** on Mac.
   2. If you see “(-k)” in the name, rename it to **`exiftool.exe`**.
      > ⚠️ The “-k” flag keeps the window open and can interfere with automated processing.
-  3. Move the single `exiftool.exe` (Windows) into the **same folder** as `snapchat_metadata.py` (the `Snapchat_Memories_Tool/` folder).
+  3. Move `exiftool.exe` and its accompanying **`exiftool_files/`** folder (Windows) into the **same folder** as `snapchat_metadata.py` (the `Snapchat_Memories_Tool/` folder).
+     > ⚠️ On Windows, `exiftool.exe` requires the `exiftool_files/` folder in the same directory to execute without missing DLL errors.
      > ⚠️ For Mac standard package should already place it in `/usr/local/bin` for easy Terminal access
 
 - <h4 id="download-ffmpeg"> 🧩 <a href="https://ffmpeg.org/download.html" target="_blank"><strong>Download FFmpeg & FFprobe</strong></a> — used to process and merge videos. </h4>
@@ -477,6 +487,7 @@ Snapchat_Memories_Tool/
 │   └── memories system time/      (Memories using system-local timezone)
 │
 ├── exiftool.exe   (for Windows)   (ExifTool executable for metadata)
+├── exiftool_files/ (for Windows)  (ExifTool supporting DLLs and Perl modules)
 ├── ffmpeg.exe     (for Windows)   (FFmpeg executable for video processing)
 ├── ffprobe.exe    (for Windows)   (FFprobe executable for video processing)
 ├── snapchat_metadata.py           (main Python script)

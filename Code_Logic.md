@@ -27,7 +27,7 @@ from typing import Optional
 
 ---
 
-## 2. Load memories metadata
+## 2. Load memories and chat metadata
 
 ```python
 with open("input/memories_history.json", "r", encoding="utf-8") as f:
@@ -35,25 +35,21 @@ with open("input/memories_history.json", "r", encoding="utf-8") as f:
 
 tf = TimezoneFinder()
 system_timezone = get_localzone_name()
+
+# Load chat history metadata if available
+chat_metadata_map = {}
+chat_history_path = Path("input/chat_history.json")
+if chat_history_path.exists():
+    with open(chat_history_path, "r", encoding="utf-8") as f:
+        chat_data = json.load(f)
+    # Maps Media IDs (b~...) to UTC creation timestamps, senders, and chat titles
 ```
 
 **What’s happening:**
 
-- Snapchat gives you a big JSON file with data for every Memory you ever saved.
-- This loads that file, takes the `"Saved Media"` list, and stores it in memory as `metadata`.
-- It also create:
-  - `tf`: a `TimezoneFinder` function will be used to find the timezone from GPS lat/lon.
-  - `system_timezone`: whatever timezone the computer is currently in.
-
-Why this matters:  
-This script has two concepts of “local time”:
-
-1. **Location time** (the timezone at the GPS coordinates where the snap happened)
-2. **System time** (your current timezone right now)
-
-I build two different output folders using those two interpretations: the **Location time** folder is compatible with Microsft File Explorer and the **System time** folder tuned for iCloud Photos display.
-
-    Having two seperate folders matters because iCloud Photos already converts the files time based off the GPS timezone by itself. So, using files with already converted timezones will make timestamps appear double-converted in Apple Photos.
+- Loads `memories_history.json` for Memories metadata (dates, times, GPS coordinates).
+- If present, loads `chat_history.json` to map chat media IDs (`b~...`) to their exact original UTC timestamps, senders (`From`), and conversation titles (`Conversation Title`).
+- Initializes `tf` (for GPS timezone calculations) and `system_timezone` (for computer local time).
 
 ---
 
@@ -61,19 +57,16 @@ I build two different output folders using those two interpretations: the **Loca
 
 ```python
 def get_metadata(filename):
-    for m in metadata:
-        if "mid=" in m["Download Link"]:
-            mid = m["Download Link"].split("mid=")[1].split("&")[0]
-            if mid in filename:
-                return m
-    return None
+    _build_metadata_cache()
+    if filename in _filename_to_meta_cache:
+        return _filename_to_meta_cache[filename]
 ```
 
 **Purpose:**
 
-- Every file from Memories has a long ID in its filename, like `...-main.mp4`.
-- That same ID shows up in the JSON (`"mid=ABC123..."` in `Download Link`).
-- This function finds the JSON row that belongs to a given file on disk.
+- Pre-computes file-to-metadata mappings in `_build_metadata_cache()`.
+- **Legacy exports**: Matches `mid=<UUID>` in download links if present.
+- **New export format**: Matches `YYYY-MM-DD` date prefixes and relative file sequence order when download links are empty (`""`).
 
 **Why:**  
 We need that row because it contains:
@@ -231,14 +224,22 @@ Then if it's doing a full write (not just touching modified time), we also injec
             f"-DateTimeOriginal={date_time}",
             f"-DateTimeDigitized={date_time}",
             f"-Microsoft:DateAcquired={date_time}",
+            "-Keywords=Snapchat",
+            "-XPKeywords=Snapchat",
+            "-Subject=Snapchat",
+            "-XMP-dc:Subject=Snapchat",
+            "-Keys:Keywords=Snapchat",
+            "-UserData:Keywords=Snapchat",
+            "-ItemList:Keyword=Snapchat",
         ]
 ```
 
 Why so many tags?
 
 - Different apps read different tags:
+  - **Immich**, Google Photos, and Lightroom read `-Keywords=Snapchat`, `-XMP-dc:Subject=Snapchat`, and QuickTime video keywords (`-Keys:Keywords`, `-UserData:Keywords`, `-ItemList:Keyword`) to automatically assign the **`Snapchat`** tag to both photo and MP4 video uploads.
   - iCloud Photos cares about EXIF DateTimeOriginal / QuickTime:CreateDate.
-  - Windows File Explorer sometimes surfaces Microsoft:DateAcquired or DateTimeOriginal in the “Date” column.
+  - Windows File Explorer surfaces Microsoft:DateAcquired or DateTimeOriginal in the “Date” column.
 - By setting basically all of them to the same timestamp, everything lines up visually in iOS, iCloud web, Windows Explorer, and potentially any other photo application users may use.
 
 Next, we optionally write GPS:
@@ -642,35 +643,32 @@ def has_audio_stream(file_path: Path) -> bool:
 
 ```python
 def convert_to_mp3(input_file: Path, output_file: Path):
-    ffmpeg -i input -vn -acodec libmp3lame output.mp3
+    subprocess.run([
+        "ffmpeg", "-y", "-nostdin", "-i", str(input_file), "-vn", "-acodec", "libmp3lame", str(output_file)
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 ```
 
-- Voice notes from chat_media often come out as `.mp4` “videos” with no video frames, just audio.
-- We turn those into `.mp3` files because that’s more convenient to listen to later.
+- Converts audio-only MP4 voice notes into `.mp3` files.
+- Uses `-y` (automatic overwrite approval) and `-nostdin` (disable standard input listening) so batch conversions run seamlessly without halting for Enter key presses.
 
 ---
 
-## 12. `process_chat_media()`
+## 12. `get_chat_media_datetime()` and `process_chat_media()`
 
 ```python
-def process_chat_media():
-    input_dir = Path("input/chat_media")
-    output_dir = Path("output/chat media")
-    voice_dir = Path("output/chat media voice messages")
-    ...
-    date_counter = {}
-    voice_counter = {}
+def get_chat_media_datetime(file_path: Path) -> tuple:
+    # Priority 1: Exact UTC timestamp from chat_history.json -> converted to system local time
+    # Priority 2: File creation/modification timestamp (st_ctime / st_mtime)
+    # Priority 3: Neutral 00:00:00 fallback
 ```
 
-Goal of this function:
+Goal of Chat Media processing:
 
-- Take exported chat attachments.
-- Normalize names.
-- Force metadata to a clean date/time (midnight of that day).
-- Split them into:
-  - regular chat media (pics/videos),
-  - voice messages (mp3).
-- Keeps a counter so multiple files from the same day don’t have duplicate names
+- Extracts exact original timestamps from `chat_history.json` and converts them to system local time.
+- Captures sender info (`From`) and group/chat titles (`Conversation Title`) for enhanced console logging.
+- Normalizes file names with date prefixes and sequence counters.
+- Converts audio-only MP4 voice notes into `.mp3` files.
+- Embeds clean metadata and automatic `Snapchat` EXIF tags into output files.
 
 ### Loop over every file in `input/chat_media`
 
